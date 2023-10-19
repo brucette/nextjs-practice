@@ -18,6 +18,8 @@ const NavBar = () => {
           <div>
             {session.user!.name}
             <Link href= "/api/auth/signout" className='ml-3'>Sign out</Link>
+            <Link href= "/changepassword" className='ml-3'>Change password</Link>
+            {/* <Link href= "/api/auth/updateuser" className='ml-3'>Change password</Link> */}
           </div>}
         { status === 'unauthenticated' && 
           <div>
