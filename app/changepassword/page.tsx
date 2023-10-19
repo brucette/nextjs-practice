@@ -1,11 +1,12 @@
 'use client'
-import { FormEvent, useRef } from 'react'
+import { FormEvent, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 
 const ChangePassword = () => {
   const formRef = useRef<HTMLFormElement>(null)
   const submitRef = useRef<HTMLButtonElement>(null)
+  const [error, setError] = useState()
 
   const router = useRouter()
   const {status, data: session} = useSession();
@@ -26,16 +27,26 @@ const ChangePassword = () => {
         body: JSON.stringify({
             email: session!.user!.email,
             oldPassword: formData.get('old'),
-            newPassword: formData.get('new')
+            newPassword: formData.get('new'),
+            confirmPassword: formData.get('confirm')
         }),
         headers: {
             'Content-Type': 'application/json'
         }
     }
 
-    fetch('/api/update', options)
-    formRef.current!.reset()
-    router.push("/")
+    async function sendNewPassword() {
+      const result = await fetch('/api/update', options)
+      const json = await result.json()
+
+      if (json.status === 201) {
+        formRef.current!.reset()
+        return router.push("/")
+      }
+      console.log(json.issues[0].message)
+      setError(json.issues[0].message)
+    }
+    sendNewPassword()
   }
 
   return (
@@ -80,6 +91,7 @@ const ChangePassword = () => {
               </button>
         </div>
         </form>
+        {error && <p>{error}</p>}
 
     </div>
   )
